@@ -9,8 +9,8 @@
 // @icon           https://www.google.com/s2/favicons?domain=co.id
 // @grant          GM_xmlhttpRequest
 // @copyright      2021
-// @updateURL    https://raw.githubusercontent.com/kharismaanjina/cso-script/main/auto_fill_onedigit_script.user.js
-// @downloadURL  https://raw.githubusercontent.com/kharismaanjina/cso-script/main/auto_fill_onedigit_script.user.js
+// @updateURL      https://raw.githubusercontent.com/kharismaanjina/cso-script/main/auto_fill_onedigit_script.user.js
+// @downloadURL    https://raw.githubusercontent.com/kharismaanjina/cso-script/main/auto_fill_onedigit_script.user.js
 // @license        MIT
 // ==/UserScript==
 
