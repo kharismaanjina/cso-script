@@ -184,6 +184,7 @@ ${rawImpact}`;
             // 4G:${rawImpact.length}NE
             // Detail Site:
             // ${rawImpact}`
+            data.dateOpen = formatedDate(data.dateOpen);
             document.querySelector("#TTiketcase_description").value =
               data.ticketHL;
             document.querySelector("#TTiketcase_dateOpen").value =
@@ -592,6 +593,22 @@ ${rawImpact}`;
     });
   }
 
+  function formatedDate(date){
+      const input = "2025-11-05 21:54:27";
+      if(!date) return null;
+
+      // Pisahkan tanggal dan waktu
+      const [datePart, timePart] = date.split(" "); // ["2025-11-05", "21:54:27"]
+
+      // Pisahkan tanggal jadi komponen
+      const [year, month, day] = datePart.split("-");
+
+      // Susun ulang jadi format dd-MM-yyyy HH:mm:ss
+      const formatted = `${day}-${month}-${year} ${timePart}`;
+
+      return formatted;
+  }
+
   function close(jNode) {
     jNode.on("change", (event) => {
       if (event.target.value === "CLOSED") {
@@ -608,6 +625,8 @@ ${rawImpact}`;
             if (data.message === "no data found") {
               return;
             }
+
+            data.dateClosed = formatedDate(data.dateClosed);
             //const array = data.actualSolution.split("-")
             //const actualSolution = array[2].replace(/\W/, "")
             let initRFO = document.querySelector(
