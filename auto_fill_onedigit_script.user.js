@@ -149,7 +149,9 @@ ${rawImpact}`;
       }
 
       setTimeout(() => {
-        const query = document.querySelector("#TTiketcase_faultnb").value;
+        let query = document.querySelector("#TTiketcase_faultnb").value;
+        query = query.trim();
+        document.querySelector("#TTiketcase_faultnb").value = query;
         const details = {
           method: "GET",
           url: `https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${query}.json`,
