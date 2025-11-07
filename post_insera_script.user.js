@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         post_insera
 // @namespace    http://tampermonkey.net/
-// @version      2.5
+// @version      2.7
 // @description  autofill ticket insera
 // @author       afr
 // @match        https://oss-incident.telkom.co.id/jw/web/userview/ticketIncidentService/ticketIncidentService/*
@@ -17,6 +17,11 @@
 
 (function () {
   "use strict";
+
+
+   var currentMonth = getCurrentMonth();
+   var userName = $('.user-link>.dropdown-toggle').text().trim() || "";
+
   // waitForKeyEements
   /*--- waitForKeyElements():  A utility function, for Greasemonkey scripts,
   that detects and handles AJAXed content.
@@ -156,8 +161,8 @@
         };
 
         const details = {
-          method: "PUT",
-            url:`https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${ticket.ticketId}.json`,
+          method: "PATCH",
+            url:`https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${currentMonth}/${ticket.ticketId}.json`,
            //url: "https://autofill-2u8b.onrender.com/addlist",
           // url: 'http://localhost:3000/addlist',
         //   url: "https://autofill.faizruzain.site/addlist",
@@ -170,8 +175,6 @@
             console.log(err.statusText);
           },
           onload: (res) => {
-            console.log(res.status);
-            console.log(res.responseText);
             if (res.status === 200) {
               let notification = $("#notify");
               notification.slideDown(200);
@@ -195,7 +198,7 @@
         if (ticket) {
           const details = {
             method: "PATCH",
-            url: `https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${objTicket.ticketId}.json`,
+            url: `https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${currentMonth}/${objTicket.ticketId}.json`,
             // url: 'http://localhost:3000/list',
             // url: "https://autofill.faizruzain.site/list",
             headers: {
@@ -207,12 +210,12 @@
               console.log(err.statusText);
             },
             onload: (res) => {
-              console.log(res.status);
               const notification = $("iframe#jqueryDialogFrame").contents().find("img#putNotify");
               notification.slideDown(200);
               setTimeout(() => {
                 notification.slideUp(200);
               }, 500);
+
               // if (res.status === 200) {
               //     // $('button[class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close"]').trigger("click");
               //     // console.log("kals;jdfh;adjois");
@@ -287,7 +290,7 @@ Detail Site:
 
         const details = {
           method: "PATCH",
-            url:`https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${ticketId}.json`,
+            url:`https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${currentMonth}/${ticketId}.json`,
            //url: "https://autofill-2u8b.onrender.com/update-worklogs",
           // url: 'http://localhost:3000/update-worklogs',
         //   url: "https://autofill.faizruzain.site/update-worklogs",
@@ -305,8 +308,6 @@ Detail Site:
             setTimeout(() => {
               notification.slideUp(200);
             }, 500);
-            console.log(res.status);
-            console.log(res.responseText);
           },
         };
         GM_xmlhttpRequest(details);
@@ -359,6 +360,15 @@ Detail Site:
     localStorage.setItem("ticket", JSON.stringify(ticket));
   });
 
+  function getCurrentMonth(){
+     const date = new Date();
+     const month = date.toLocaleString('en-US', { month: 'short' }).toLowerCase();
+     const year = date.getFullYear();
+
+     const currentMonth = `${month}-${year}`;
+     return currentMonth;
+  }
+
   function notify(jNode) {
     jNode.before(
       '<img id="notify" src="https://media1.giphy.com/media/1xp0KDHzTY5GlDEpuL/giphy.gif?cid=ecf05e47i8j3sf6y4tr7vmxrmc2j4ujekfwplazmsue4hyeb&rid=giphy.gif&ct=s" />'
@@ -386,6 +396,27 @@ Detail Site:
       .text()
       .match(/\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}/)[0];
     localStorage.setItem("ticket", JSON.stringify(parsedTicket));
+  }
+
+  function ticketLogAction(ticketId , action){
+      const details = {
+          method: "POST",
+            url:`https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${currentMonth}/${ticketId}/action.json`,
+           //url: "https://autofill-2u8b.onrender.com/update-worklogs",
+          // url: 'http://localhost:3000/update-worklogs',
+        //   url: "https://autofill.faizruzain.site/update-worklogs",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: JSON.stringify({ticketId:ticketId, action:action, user:userName}),
+          onerror: (err) => {
+            console.log(err.responseText);
+          },
+          onload: (res) => {
+            console.log('ok');
+          },
+        };
+        GM_xmlhttpRequest(details);
   }
 
   function createAndFillDataList(jNode) {
