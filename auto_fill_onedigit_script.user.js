@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           auto-fill-onedigit
 // @namespace      http://tampermonkey.net/
-// @version        5.8
+// @version        5.9
 // @description    like a boss
 // @author         afr
 // @include        /https:\/{2}onedigit.telkom.co.id\/tiket/
