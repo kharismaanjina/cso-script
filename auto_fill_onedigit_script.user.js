@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           auto-fill-onedigit
 // @namespace      http://tampermonkey.net/
-// @version        5.9
+// @version        5.10
 // @description    like a boss
 // @author         afr
 // @include        /https:\/{2}onedigit.telkom.co.id\/tiket/
@@ -16,6 +16,7 @@
 
 (function () {
   "use strict";
+    var currentMonth = getCurrentMonth();
   // waitForKeyEements
   /*--- waitForKeyElements():  A utility function, for Greasemonkey scripts,
     that detects and handles AJAXed content.
@@ -154,7 +155,7 @@ ${rawImpact}`;
         document.querySelector("#TTiketcase_faultnb").value = query;
         const details = {
           method: "GET",
-          url: `https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${query}.json`,
+          url: `https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${currentMonth}/${query}.json`,
           // url: `http://localhost:3000/list?id=${query}`,
           // url: `https://autofill.faizruzain.site/list?id=${query}`,
           responseType: "json",
@@ -178,8 +179,7 @@ ${rawImpact}`;
             const gamas = /([7-9]|[1-9]\d+)NODEB/g;
             const ceragon = /ceragon/i;
             const description = data.ticketHL;
-            console.log(data.impact);
-            //                         const rawImpact = data.impact
+            //const rawImpact = data.impact
             //                         const impact = `Jumlah Site:${rawImpact.length}
             // 2G:${rawImpact.length}NE
             // 3G:${rawImpact.length}NE
@@ -200,8 +200,13 @@ ${rawImpact}`;
             //     document.querySelector('#TTiketcase_jmlservice').value = rawImpact.length
             // }
             document.querySelector("#TTiketcase_impact").value = data.impact; //setImpact(description, data.impact)
-            document.querySelector("#TTiketcase_jmlservice").value =
-              data.impact[0].match(/\d+/i); //totalImpact(description, data.impact)
+
+            let siteStr = data.impact.match(/\[([^\]]+)\]/);
+            let siteArray = siteStr ? siteStr[1].split(',') : [];
+
+            document.querySelector("#TTiketcase_jmlservice").value = siteArray.length;
+            document.querySelector("#TTiketcase_site").value = siteStr[1] || '';
+
             document.querySelector("#TTiketcase_noRemedy").value = data.remedy;
             document.querySelector("#TTiketcase_siteA").value = backhaul.test(
                 description
@@ -586,13 +591,22 @@ ${rawImpact}`;
   }
 
   function impactNum(jNode) {
-    jNode.on("paste", () => {
+    jNode.on("change", () => {
       setTimeout(() => {
         const val = document.querySelector("#TTiketcase_impact").value;
-        const impactNum = val.match(/\d+/);
-        document.querySelector("#TTiketcase_jmlservice").value = impactNum;
+        const impactN = val.match(/\d+/);
+        document.querySelector("#TTiketcase_jmlservice").value = impactN;
       }, 100);
     });
+  }
+
+  function getCurrentMonth(){
+     const date = new Date();
+     const month = date.toLocaleString('en-US', { month: 'short' }).toLowerCase();
+     const year = date.getFullYear();
+
+     const currentMonth = `${month}-${year}`;
+     return currentMonth;
   }
 
   function formatedDate(date){
@@ -618,13 +632,13 @@ ${rawImpact}`;
         const query = document.querySelector("#TTiketcase_faultnb").value;
         const details = {
           method: "GET",
-          url: `https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${query}.json`,
+          url: `https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${currentMonth}/${query}.json`,
           // url: `http://localhost:3000/list?id=${query}`,
           //   url: `https://autofill.faizruzain.site/list?id=${query}`,
           responseType: "json",
           onload: (res) => {
             const data = JSON.parse(res.responseText);
-            if (data.message === "no data found") {
+            if (data.error) {
               return;
             }
 
@@ -735,13 +749,12 @@ ${rawImpact}`;
       const query = $("#TTiketcase_faultnb").val();
       const details = {
         method: "GET",
-         url:`https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${query}/worklogs.json`,
+         url:`https://cso-2025-fe71e-default-rtdb.asia-southeast1.firebasedatabase.app/data/tickets/${currentMonth}/${query}/worklogs.json`,
         //url: `https://autofill-2u8b.onrender.com/update-worklogs?ticketId=${query}`,
         // url: `http://localhost:3000/update-worklogs?ticketId=${query}`,
         // url: `https://autofill.faizruzain.site/update-worklogs?ticketId=${query}`,
         responseType: "json",
         onload: (res) => {
-          console.log(res);
           const data = res.response
           if (data) {
             for (var i = 0; i < data.length; i++) {
@@ -758,7 +771,7 @@ ${rawImpact}`;
 
   waitForKeyElements("#TTiketcase_faultnb", autoFill);
   waitForKeyElements("#TTiketcase_dateClose", paste);
-  waitForKeyElements("#TTiketcase_impact", impactNum);
+  //waitForKeyElements("#TTiketcase_impact", impactNum);
   waitForKeyElements("#TTiketcase_statusTiket", close);
   waitForKeyElements("#TTiketcase_keterangan", updateWorkLogs);
 
