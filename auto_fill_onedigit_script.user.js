@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           auto-fill-onedigit
 // @namespace      http://tampermonkey.net/
-// @version        5.10
+// @version        5.11
 // @description    like a boss
 // @author         afr
 // @include        /https:\/{2}onedigit.telkom.co.id\/tiket/
@@ -201,11 +201,11 @@ ${rawImpact}`;
             // }
             document.querySelector("#TTiketcase_impact").value = data.impact; //setImpact(description, data.impact)
 
-            let siteStr = data.impact.match(/\[([^\]]+)\]/);
-            let siteArray = siteStr ? siteStr[1].split(',') : [];
+            let siteStr = data.impact.match(/Detail Site:\s*\[?([^\]\n]+)\]?/);
+            let siteArray = siteStr ? siteStr[1].split(',').map(s => s.trim()) : [];
 
             document.querySelector("#TTiketcase_jmlservice").value = siteArray.length;
-            document.querySelector("#TTiketcase_site").value = siteStr[1] || '';
+            document.querySelector("#TTiketcase_site").value = siteStr? siteStr[1] : '';
 
             document.querySelector("#TTiketcase_noRemedy").value = data.remedy;
             document.querySelector("#TTiketcase_siteA").value = backhaul.test(
@@ -562,10 +562,9 @@ ${rawImpact}`;
               // next step -> siteID
               $(".search-button.btn.btn-info")[0].click();
               setTimeout(() => {
-                $(".filter-container")[21].childNodes[0].value =
-                  description.match(siteID);
-                $(".filter-container")[21].childNodes[0].focus();
-                $(".filter-container")[21].childNodes[0].select();
+                $('.filter-container input[name="TLokasinode[actNeSiteid]"]').val(description.match(siteID));
+                $('.filter-container input[name="TLokasinode[actNeSiteid]"]').focus();
+                $('.filter-container input[name="TLokasinode[actNeSiteid]"]').select();
               }, 700);
             }
           },
